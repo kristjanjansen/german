@@ -1,4 +1,4 @@
-const lang = "de";
+const lang = "de-DE";
 const voiceIndex = 1;
 
 const getVoices = () => {
