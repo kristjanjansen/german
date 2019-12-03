@@ -3,19 +3,23 @@ import {
   shuffle
 } from "https://designstem.github.io/fachwerk/fachwerk.js";
 
-const { default: compositionApi, ref } = window.vueCompositionApi;
-
-Vue.use(window.vue2Hammer.VueHammer);
+const { default: compositionApi, ref, computed } = window.vueCompositionApi;
 Vue.use(compositionApi);
+
+const { VueHammer } = window.vue2Hammer;
+Vue.use(VueHammer);
 
 new Vue({
   setup() {
     const words = ref([]);
-    const currentWord = ref(0);
+    const currentWordIndex = ref(0);
     const reverse = ref(false);
 
-    const genderColors = ["royalblue", "pink", "mediumseagreen"];
-    const genderWords = ["der", "die", "das"];
+    const genderColors = {
+      der: "royalblue",
+      die: "pink",
+      das: "mediumseagreen"
+    };
 
     const id = "17ILBrJ1FxvozYhI31hwCugQnL1c48w6jOxHaQmDb9SA";
 
@@ -27,25 +31,54 @@ new Vue({
         words.value = shuffle(parseSheet(res));
       });
 
+    const wordsLoaded = computed(() => !!words.value.length);
+
+    const currentWord = computed(() => {
+      if (wordsLoaded.value) {
+        return reverse.value
+          ? words.value[currentWordIndex.value].estonian
+          : words.value[currentWordIndex.value].german;
+      }
+      return "";
+    });
+
+    const currentGender = computed(() => {
+      if (wordsLoaded.value) {
+        return words.value[currentWordIndex.value].gender;
+      }
+      return "";
+    });
+
+    const currentColor = computed(() => {
+      if (
+        wordsLoaded.value &&
+        words.value[currentWordIndex.value].gender &&
+        genderColors[words.value[currentWordIndex.value].gender]
+      ) {
+        return genderColors[words.value[currentWordIndex.value].gender];
+      }
+      return "white";
+    });
+
     const onNextWord = () => {
-      if (currentWord.value < words.value.length - 1) {
-        currentWord.value++;
+      if (currentWordIndex.value < words.value.length - 1) {
+        currentWordIndex.value++;
       } else {
-        currentWord.value = 0;
+        currentWordIndex.value = 0;
       }
     };
 
     const onPrevWord = () => {
-      if (currentWord.value > 1) {
-        currentWord.value--;
+      if (currentWordIndex.value > 1) {
+        currentWordIndex.value--;
       }
     };
 
     return {
-      genderColors,
-      genderWords,
-      words,
+      wordsLoaded,
       currentWord,
+      currentGender,
+      currentColor,
       onNextWord,
       onPrevWord,
       reverse
@@ -53,38 +86,37 @@ new Vue({
   },
   template: `
   <div
-    v-if="words.length" 
+    v-if="wordsLoaded" 
     style="
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
     "
-    :style="{color: genderColors[words[currentWord].gender]}"
+    :style="{ color: currentColor }"
   >
 
     <div
-      v-if="words.length"
       v-hammer:swipe.left="onPrevWord"
       v-hammer:swipe.right="onNextWord"
       @mouseup="onNextWord"
         
     > 
       <div>
-        {{ reverse ? words[currentWord].estonian : words[currentWord].german }}
+        {{ currentWord }}
       </div>
     </div>
 
     <div
-      v-if="words[currentWord].gender && !reverse"
+      v-if="currentGender && !reverse"
       style="
         position: fixed;
-        top: 20vw;
+        top: 20vh;
         padding: 15px;
         font-size: 3vw;
       "
     >
-      <div>{{ genderWords[words[currentWord].gender] }}</div>
+      <div>{{ currentGender }}</div>
     </div>
 
     <div
