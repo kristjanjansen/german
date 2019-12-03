@@ -43,10 +43,13 @@ new Vue({
     });
 
     const currentGender = computed(() => {
-      if (wordsLoaded.value) {
+      if (reverse.value) {
+        return "&nbsp";
+      }
+      if (wordsLoaded.value && words.value[currentWordIndex.value].gender) {
         return words.value[currentWordIndex.value].gender;
       }
-      return "";
+      return "&nbsp";
     });
 
     const currentColor = computed(() => {
@@ -88,46 +91,45 @@ new Vue({
   <div
     v-if="wordsLoaded" 
     style="
-      height: 100vh;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-around;
+      flex-direction: column;
+      border: 2px solid white;
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      font-family: Asap Condensed, sans-serif;
+      text-transform: uppercase;
+      background: hsl(237, 24%, 10%);
+      letter-spacing: 0.07em;
+      padding: 10vh 0;
     "
     :style="{ color: currentColor }"
   >
 
     <div
+      style="font-size: 4vw;"
+      v-html="currentGender"
+    />
+     
+    <div
       v-hammer:swipe.left="onPrevWord"
       v-hammer:swipe.right="onNextWord"
       @mouseup="onNextWord"
-        
+      style="font-size: 12vw"
     > 
-      <div>
-        {{ currentWord }}
-      </div>
-    </div>
-
-    <div
-      v-if="currentGender && !reverse"
-      style="
-        position: fixed;
-        top: 20vh;
-        padding: 15px;
-        font-size: 3vw;
-      "
-    >
-      <div>{{ currentGender }}</div>
+      {{ currentWord }}
     </div>
 
     <div
       style="
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        padding: 15px;
         font-size: 1.5rem;
         opacity: 0.3;
         color: white;
+        padding: 3vw 5vw;
       "
       @click="reverse = !reverse"
     >↻
