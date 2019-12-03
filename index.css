@@ -1,0 +1,14 @@
+@import url("https://fonts.googleapis.com/css?family=Asap+Condensed:700&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: "Asap Condensed", sans-serif;
+  text-transform: uppercase;
+  background: hsl(237, 24%, 10%);
+  color: white;
+  margin: 0;
+  font-size: 12vw;
+  letter-spacing: 0.07em;
+}
