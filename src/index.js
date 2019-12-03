@@ -9,6 +9,8 @@ Vue.use(compositionApi);
 const { VueHammer } = window.vue2Hammer;
 Vue.use(VueHammer);
 
+import { speak } from "./speak.js";
+
 new Vue({
   setup() {
     const words = ref([]);
@@ -44,12 +46,12 @@ new Vue({
 
     const currentGender = computed(() => {
       if (reverse.value) {
-        return "&nbsp";
+        return "";
       }
       if (wordsLoaded.value && words.value[currentWordIndex.value].gender) {
         return words.value[currentWordIndex.value].gender;
       }
-      return "&nbsp";
+      return "";
     });
 
     const currentColor = computed(() => {
@@ -84,7 +86,8 @@ new Vue({
       currentColor,
       onNextWord,
       onPrevWord,
-      reverse
+      reverse,
+      speak
     };
   },
   template: `
@@ -112,7 +115,7 @@ new Vue({
 
     <div
       style="font-size: 4vw;"
-      v-html="currentGender"
+      v-html="currentGender ? currentGender : '&nbsp;'"
     />
      
     <div
@@ -126,13 +129,22 @@ new Vue({
 
     <div
       style="
-        font-size: 1.5rem;
+        font-size: 2rem;
         opacity: 0.3;
         color: white;
         padding: 3vw 5vw;
+        display: flex;
+        cursor: pointer;
       "
-      @click="reverse = !reverse"
-    >↻
+    >
+      <div @click="reverse = !reverse">
+        ↻
+      </div>
+      <div
+        style="margin: -0.15rem 0 0 15vw"
+        :style="{ opacity: reverse ? 0.2 : 1 }"
+        @click="reverse ? () => null : speak(currentGender + ' ' + currentWord)"
+      >◎</div>
     </div>
 
   </div>
